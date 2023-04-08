@@ -1,0 +1,14 @@
+{
+  "targets": {
+    "cryptotrade-a5ee6": {
+      "hosting": {
+        "trading": [
+          "cryptotrade-a5ee6"
+        ]
+      }
+    }
+  },
+  "projects": {
+    "default": "cryptotrade-a5ee6"
+  }
+}
