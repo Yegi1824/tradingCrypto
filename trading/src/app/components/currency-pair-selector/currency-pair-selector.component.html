@@ -1,0 +1,3 @@
+<select (change)="onSelectCurrencyPair($event)">
+  <option *ngFor="let pair of currencyPairs" [value]="pair">{{ pair }}</option>
+</select>

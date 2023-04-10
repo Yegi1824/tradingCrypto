@@ -1,0 +1,11 @@
+<form>
+  <div class="current-price">
+    <p>Current Price: {{ currentPrice$ | async }}</p>
+  </div>
+  <div>
+    <label>Amount:</label>
+    <input type="number" [(ngModel)]="amount" name="amount" required />
+  </div>
+  <button type="submit" (click)="buy()" class="btn btn-success" [disabled]="!amount">Buy</button>
+  <button type="submit" (click)="sell()" class="btn btn-danger" [disabled]="!amount">Sell</button>
+</form>

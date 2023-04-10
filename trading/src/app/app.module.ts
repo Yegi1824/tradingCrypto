@@ -11,21 +11,35 @@ import { provideDatabase,getDatabase } from '@angular/fire/database';
 import { provideFirestore,getFirestore } from '@angular/fire/firestore';
 import { provideMessaging,getMessaging } from '@angular/fire/messaging';
 import { provideStorage,getStorage } from '@angular/fire/storage';
+import { ChartComponent } from './components/chart/chart.component';
+import { TradeComponent } from './components/trade/trade.component';
+import { CurrentTradeComponent } from './components/current-trade/current-trade.component';
+import { CurrencyPairSelectorComponent } from './components/currency-pair-selector/currency-pair-selector.component';
+import {HttpClientModule} from "@angular/common/http";
+import { TradeFormComponent } from './components/trade-form/trade-form.component';
+import {FormsModule} from "@angular/forms";
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    ChartComponent,
+    TradeComponent,
+    CurrentTradeComponent,
+    CurrencyPairSelectorComponent,
+    TradeFormComponent
   ],
   imports: [
     BrowserModule,
     AppRoutingModule,
+    HttpClientModule,
     provideFirebaseApp(() => initializeApp(environment.firebase)),
     provideAnalytics(() => getAnalytics()),
     provideAuth(() => getAuth()),
     provideDatabase(() => getDatabase()),
     provideFirestore(() => getFirestore()),
     provideMessaging(() => getMessaging()),
-    provideStorage(() => getStorage())
+    provideStorage(() => getStorage()),
+    FormsModule
   ],
   providers: [
     ScreenTrackingService,UserTrackingService
