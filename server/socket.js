@@ -114,9 +114,13 @@ function handleMessage(socket, message, symbol, startTime, duration, initialPric
             }
             previousClosePrice = newClosePrice;
         } else {
-            const openPrice = parseFloat(klineData.o);
-            const newOpenPrice = openPrice * (1 + priceChangeFactor);
-            klineData.o = newOpenPrice.toFixed(8);
+            if (previousClosePrice !== null) {
+                klineData.o = previousClosePrice.toFixed(8);
+            }
+
+            const highPrice = parseFloat(klineData.h);
+            const newHighPrice = highPrice * (1 + priceChangeFactor);
+            klineData.с = newHighPrice.toFixed(8);
         }
 
         // Рассчитываем новые значения для фитиля свечи
