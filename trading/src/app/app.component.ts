@@ -1,5 +1,7 @@
 import {Component} from '@angular/core';
 import {v4} from 'uuid'
+import {Trade, TradesService} from "./services/trades.service";
+import {SocketClient} from "../socketClient";
 
 @Component({
   selector: 'app-root',
@@ -7,13 +9,41 @@ import {v4} from 'uuid'
   styleUrls: ['./app.component.scss']
 })
 export class AppComponent {
+  socketClient: SocketClient;
+  constructor(private tradesService: TradesService) {
+    this.socketClient = new SocketClient();
+  }
+
   title = 'trading';
   selectedSymbol = 'BTCUSDT';
   selectedTimeframe = '1h';
   realtimeTimeframe = '1h';
 
   onCurrencyPairChanged(symbol: string): void {
+    this.socketClient.emit('changeSymbol', { symbol: symbol, interval: this.realtimeTimeframe, priceChange: 0.03 });
     this.selectedSymbol = symbol;
+  }
+
+  onBuySubmit(event: { price: number; amount: number }): void {
+    const trade: Trade = {
+      id: Date.now(),
+      symbol: this.selectedSymbol,
+      tradeType: 'buy',
+      amount: event.amount,
+      price: event.price,
+    };
+    this.tradesService.addTrade(trade);
+  }
+
+  onSellSubmit(event: { price: number; amount: number }): void {
+    const trade: Trade = {
+      id: Date.now(),
+      symbol: this.selectedSymbol,
+      tradeType: 'sell',
+      amount: event.amount,
+      price: event.price,
+    };
+    this.tradesService.addTrade(trade);
   }
 
   getUniqUUID() {

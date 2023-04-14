@@ -15,8 +15,9 @@
 <app-chart #chart [timeframe]="selectedTimeframe"
            [symbol]="selectedSymbol"
            [realtimeTimeframe]="realtimeTimeframe"></app-chart>
+<app-active-trades></app-active-trades>
 <app-trade-form
-  (buySubmit)="chart.addTradeMarker({ price: $event.price, amount: $event.amount, tradeType: 'buy', symbol: selectedSymbol, id: '321' })"
-  (sellSubmit)="chart.addTradeMarker({ price: $event.price, amount: $event.amount, tradeType: 'sell', symbol: selectedSymbol, id: '123' })"
+  (buySubmit)="onBuySubmit($event)"
+  (sellSubmit)="onSellSubmit($event)"
 ></app-trade-form>
 

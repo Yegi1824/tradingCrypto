@@ -1,0 +1,22 @@
+<table>
+  <thead>
+  <tr>
+    <th>Symbol</th>
+    <th>Type</th>
+    <th>Amount</th>
+    <th>Price</th>
+    <th>Actions</th>
+  </tr>
+  </thead>
+  <tbody>
+  <tr *ngFor="let trade of activeTrades">
+    <td>{{ trade.symbol }}</td>
+    <td>{{ trade.tradeType }}</td>
+    <td>{{ trade.amount }}</td>
+    <td>{{ trade.price }}</td>
+    <td>
+      <button (click)="closeTrade(trade)">Close</button>
+    </td>
+  </tr>
+  </tbody>
+</table>

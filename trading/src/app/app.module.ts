@@ -18,6 +18,7 @@ import { CurrencyPairSelectorComponent } from './components/currency-pair-select
 import {HttpClientModule} from "@angular/common/http";
 import { TradeFormComponent } from './components/trade-form/trade-form.component';
 import {FormsModule} from "@angular/forms";
+import { ActiveTradesComponent } from './components/active-trades/active-trades.component';
 
 @NgModule({
   declarations: [
@@ -26,7 +27,8 @@ import {FormsModule} from "@angular/forms";
     TradeComponent,
     CurrentTradeComponent,
     CurrencyPairSelectorComponent,
-    TradeFormComponent
+    TradeFormComponent,
+    ActiveTradesComponent
   ],
   imports: [
     BrowserModule,

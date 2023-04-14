@@ -13,7 +13,7 @@ import {BinanceService} from '../../services/binance.service';
 import {Trade, TradesService} from '../../services/trades.service';
 import {catchError, fromEvent, Observable, of, Subject, Subscription, tap} from 'rxjs';
 import {debounceTime} from 'rxjs/operators';
-import {createChart, CrosshairMode, IPriceLine, LineStyle, PriceLineOptions,} from 'lightweight-charts';
+import {createChart, CrosshairMode, IPriceLine, LineStyle, PriceLineOptions} from 'lightweight-charts';
 
 interface TradeMarker {
   priceLine: IPriceLine;
@@ -60,6 +60,7 @@ export class ChartComponent implements OnInit, OnChanges, AfterViewInit, OnDestr
     this.initChart();
     this.updateChartData();
     this.subscribeToRealtimeData();
+    this.tradesService.registerChartComponent(this);
 
     // Подписываемся на обновления данных графика
     this.chartDataSubscription.add(
@@ -92,8 +93,10 @@ export class ChartComponent implements OnInit, OnChanges, AfterViewInit, OnDestr
         // Update realtimeTimeframe when the timeframe changes
         this.realtimeTimeframe = this.convertTimeframeToRealtime(this.timeframe);
       }
+      this.removePriceLines();
       this.subscribeToRealtimeData();
       this.changeTrigger.next();
+      this.addSavedTradeMarkers();
     }
   }
 
@@ -147,9 +150,9 @@ export class ChartComponent implements OnInit, OnChanges, AfterViewInit, OnDestr
   }
 
   subscribeToRealtimeData(): void {
-    this.realtimeDataSubscription?.unsubscribe();
+    /*this.realtimeDataSubscription?.unsubscribe();
     this.realtimeDataSubscription = this.tradesService
-      .getRealtimeData(this.symbol, this.timeframe)
+      .getRealtimeData$() // Используйте realtimeTimeframe здесь
       .subscribe(
         (message) => {
           if (message.e === 'kline') {
@@ -179,37 +182,73 @@ export class ChartComponent implements OnInit, OnChanges, AfterViewInit, OnDestr
         (error) => {
           console.error('Error receiving realtime data:', error);
         }
-      );
+      );*/
+      this.realtimeDataSubscription?.unsubscribe();
+      this.tradesService.subscribeToRealtimeData(this.symbol, this.realtimeTimeframe);
+
   }
 
-  restoreTradeMarkers(): void {
-    this.tradeMarkers.forEach((marker) => {
-      this.candlestickSeries.createPriceLine(marker.options);
+  updateChartDataRealtime(candle: any): void {
+    const chartCandle = {
+      time: candle.t / 1000,
+      open: Number(candle.o),
+      high: Number(candle.h),
+      low: Number(candle.l),
+      close: Number(candle.c),
+    };
+    this.updateCurrentPrice(chartCandle.close);
+
+    // Если новая свеча начинается, добавьте ее к данным и обновите график
+    if (chartCandle.time > this.candles[this.candles.length - 1].time) {
+      this.candles.push(chartCandle);
+      this.candlestickSeries.update(chartCandle);
+    } else if (chartCandle.time === this.candles[this.candles.length - 1].time) {
+      // Иначе обновите последнюю свечу, если время совпадает
+      this.candles[this.candles.length - 1] = chartCandle;
+      this.candlestickSeries.update(chartCandle);
+    }
+  }
+
+
+  /* restoreTradeMarkers(): void {
+     this.tradeMarkers.forEach((marker) => {
+       this.candlestickSeries.createPriceLine(marker.options);
+     });
+   }*/
+
+  removePriceLines(): void {
+    this.tradeMarkers.forEach((tradeMarker) => {
+      this.candlestickSeries.removePriceLine(tradeMarker.priceLine);
     });
   }
 
   addSavedTradeMarkers() {
     this.tradeMarkers.forEach(tradeMarker => {
-      this.candlestickSeries.addPriceLine(tradeMarker.options);
+      const lineOptions = {
+        price: tradeMarker.options.price,
+        color: tradeMarker.options.color,
+        lineWidth: tradeMarker.options.lineWidth,
+        lineStyle: tradeMarker.options.lineStyle,
+      };
+      tradeMarker.priceLine = this.candlestickSeries.createPriceLine(lineOptions);
     });
   }
 
-  removeTradeMarkers(): void {
+/*  removeTradeMarkers(): void {
     this.tradeMarkers.forEach((marker) => {
       this.candlestickSeries.removePriceLine(marker.priceLine);
     });
     this.tradeMarkers = [];
-  }
-
+  }*/
 
   changeSymbol(newSymbol: string): void {
     this.symbol = newSymbol;
     this.fetchChartData();
     this.subscribeToRealtimeData();
-    this.tradesService.updateCurrentPrice(this.symbol, this.timeframe); // добавьте эту строку
+    this.tradesService.updateCurrentPrice(this.symbol, this.timeframe);
   }
 
-  updateRealtimeCandle(candle: any): void {
+  /*updateRealtimeCandle(candle: any): void {
     if (
       this.candles.length === 0 ||
       (candle.time > this.candles[this.candles.length - 1].time &&
@@ -217,7 +256,7 @@ export class ChartComponent implements OnInit, OnChanges, AfterViewInit, OnDestr
     ) {
       this.candlestickSeries.update(candle);
     }
-  }
+  }*/
 
   addTradeMarker(trade: Trade): void {
     const priceLineOptions: PriceLineOptions = {
@@ -228,12 +267,22 @@ export class ChartComponent implements OnInit, OnChanges, AfterViewInit, OnDestr
       lineVisible: true,
       axisLabelVisible: true,
       title: trade.tradeType === 'buy' ? 'Buy' : 'Sell',
-      axisLabelColor: trade.tradeType === 'buy' ? '#00FF00' : '#FF0000', // добавьте эту строку
-      axisLabelTextColor: '#FFFFFF', // добавьте эту строку
+      axisLabelColor: trade.tradeType === 'buy' ? '#00FF00' : '#FF0000',
+      axisLabelTextColor: '#FFFFFF',
     };
 
     const priceLine = this.candlestickSeries.createPriceLine(priceLineOptions);
-    this.tradeMarkers.push({ priceLine, options: priceLineOptions });
+    this.tradeMarkers.push({priceLine, options: priceLineOptions});
+  }
+
+  removeTradeMarker(trade: Trade): void {
+    const markerIndex = this.tradeMarkers.findIndex(
+      (marker) => marker.options.price === trade.price && marker.options.axisLabelColor === (trade.tradeType === 'buy' ? '#00FF00' : '#FF0000')
+    );
+    if (markerIndex !== -1) {
+      this.candlestickSeries.removePriceLine(this.tradeMarkers[markerIndex].priceLine);
+      this.tradeMarkers.splice(markerIndex, 1);
+    }
   }
 
   updateChartData(): void {
@@ -243,9 +292,6 @@ export class ChartComponent implements OnInit, OnChanges, AfterViewInit, OnDestr
       .subscribe(
         (chartData) => {
           this.candles = chartData;
-
-          // Удаление старых индикаторов торгов
-          this.removeTradeMarkers();
 
           // Удаление предыдущих данных графика
           if (this.currentSeries) {
@@ -265,11 +311,9 @@ export class ChartComponent implements OnInit, OnChanges, AfterViewInit, OnDestr
       );
   }
 
-
   fetchChartData(): Observable<any> {
     return this.tradesService.getChartData(this.symbol, this.timeframe).pipe(
       tap((data) => {
-        console.log(data)
         this.chartData = data.map(item => ({
           time: item['time'] / 1000,
           open: item['open'],
@@ -289,6 +333,16 @@ export class ChartComponent implements OnInit, OnChanges, AfterViewInit, OnDestr
 
   updateCurrentPrice(price): void {
     this.tradesService.setCurrentPrice(price);
+  }
+
+  // Добавьте этот метод для обновления размеров графика при изменении размеров окна
+  onWindowResize(): void {
+    if (this.chart) {
+      this.chart.resize(
+        this.chartContainer.nativeElement.clientWidth,
+        this.chartContainer.nativeElement.clientHeight
+      );
+    }
   }
 }
 
