@@ -1,6 +1,6 @@
 const app = require('./app');
 const server = require('http').createServer(app);
-const io = require('./socket')(server); // Передаем сервер в socket.js
+const io = require('./socket').initSocketIO(server); // Передаем сервер в socket.js
 
 const PORT = 3001;
 

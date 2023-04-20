@@ -1,6 +1,10 @@
 const axios = require('axios');
 const WebSocket = require('ws');
 const klineDataCache = new Map();
+let currentPriceChange = 0;
+
+// Вверху файла, добавьте следующую строку:
+let priceChange = 0;
 
 function initSocketIO(server) {
     const io = require('socket.io')(server);
@@ -10,7 +14,7 @@ function initSocketIO(server) {
     io.on('connection', (socket) => {
         console.log('Клиент подключен');
 
-        socket.on('changeSymbol', ({symbol, interval, priceChange}) => {
+        socket.on('changeSymbol', ({symbol, interval}) => {
             // Закрываем предыдущий websocket, если он существует
             if (connections.has(socket.id)) {
                 const prevWs = connections.get(socket.id);
@@ -20,7 +24,7 @@ function initSocketIO(server) {
                         const startTime = new Date().getTime();
                         previousClosePrice = null;
                         // Создаем новый websocket после закрытия предыдущего
-                        const realtimeWs = subscribeToRealtimeData(socket, symbol, interval, startTime, priceChange);
+                        const realtimeWs = subscribeToRealtimeData(socket, symbol, interval, startTime, currentPriceChange);
                         connections.set(socket.id, realtimeWs);
                     }, 500); // Увеличьте задержку, например, до 500 мс
                 });
@@ -30,17 +34,22 @@ function initSocketIO(server) {
                     const startTime = new Date().getTime();
                     previousClosePrice = null;
                     // Создаем новый websocket после закрытия предыдущего
-                    const realtimeWs = subscribeToRealtimeData(socket, symbol, interval, startTime, priceChange);
+                    const realtimeWs = subscribeToRealtimeData(socket, symbol, interval, startTime, currentPriceChange);
                     connections.set(socket.id, realtimeWs);
                 }, 500); // Увеличьте задержку, например, до 500 мс
             }
         });
 
+        socket.on('setPriceChange', (priceChange) => {
+            priceChange = parseFloat(priceChange);
+            currentPriceChange = priceChange;
+            io.emit('priceChange', { priceChange }); // отправляем изменение цены всем клиентам
+        });
 
-        socket.on("requestData", async ({symbol, interval, priceChange}) => {
-            console.log('priceChange-->', priceChange)
+        socket.on("requestData", async ({symbol, interval}) => {
+            console.log('priceChange-->', currentPriceChange)
             const historicalData = await fetchBinanceData(symbol, interval);
-            const manipulatedData = manipulateData(historicalData, symbol, priceChange);
+            const manipulatedData = manipulateData(historicalData, symbol, currentPriceChange);
             socket.emit("chartData", manipulatedData);
             socket.prevCandleClose = manipulatedData[manipulatedData.length - 1][4];
             socket.priceChangeStartTime = new Date().getTime();
@@ -52,14 +61,14 @@ function initSocketIO(server) {
                     const startTime = new Date().getTime();
                     previousClosePrice = null;
                     // Создаем новый websocket после закрытия предыдущего
-                    const realtimeWs = subscribeToRealtimeData(socket, symbol, interval, startTime, priceChange);
+                    const realtimeWs = subscribeToRealtimeData(socket, symbol, interval, startTime, currentPriceChange);
                     connections.set(socket.id, realtimeWs);
                 });
                 prevWs.terminate(); // Замените метод close() на terminate()
             } else {
                 const startTime = new Date().getTime();
                 previousClosePrice = null;
-                const realtimeWs = subscribeToRealtimeData(socket, symbol, interval, startTime, priceChange);
+                const realtimeWs = subscribeToRealtimeData(socket, symbol, interval, startTime, currentPriceChange);
                 connections.set(socket.id, realtimeWs);
             }
         });
@@ -80,24 +89,25 @@ function initSocketIO(server) {
     return io;
 }
 
+function setPriceChange(newPriceChange) {
+    priceChange = parseFloat(newPriceChange);
+}
+
 function getPriceChangeFactor(startTime, duration, initialPriceChange) {
     const currentTime = new Date().getTime();
     const elapsedTime = currentTime - startTime;
     if (elapsedTime >= 2 * duration) {
-        console.log(1, 0)
         return 0;
     } else if (elapsedTime <= duration) {
-        console.log(2, (elapsedTime / duration) * initialPriceChange)
         return (elapsedTime / duration) * initialPriceChange;
     } else {
-        console.log(3, initialPriceChange - ((elapsedTime - duration) / duration) * initialPriceChange)
         return initialPriceChange - ((elapsedTime - duration) / duration) * initialPriceChange;
     }
 }
 
 let previousClosePrice = null;
 
-function handleMessage(socket, message, symbol, startTime, duration, initialPriceChange) { //Вариант, в котором свочи правильно отображаются после закрытия
+function handleMessage(socket, message, symbol, startTime, duration, initialPriceChange) {
     const parsedMessage = JSON.parse(message);
     const klineData = parsedMessage.k;
 
@@ -114,23 +124,21 @@ function handleMessage(socket, message, symbol, startTime, duration, initialPric
             }
             previousClosePrice = newClosePrice;
         } else {
-            if (previousClosePrice !== null) {
+            if (previousClosePrice) {
                 klineData.o = previousClosePrice.toFixed(8);
             }
-
-            const highPrice = parseFloat(klineData.h);
-            const newHighPrice = highPrice * (1 + priceChangeFactor);
-            klineData.с = newHighPrice.toFixed(8);
         }
 
         // Рассчитываем новые значения для фитиля свечи
         const highPrice = parseFloat(klineData.h);
-        const newHighPrice = highPrice * (1 + priceChangeFactor);
-        klineData.h = newHighPrice.toFixed(8);
-
         const lowPrice = parseFloat(klineData.l);
+
+        const newHighPrice = highPrice * (1 + priceChangeFactor);
         const newLowPrice = lowPrice * (1 + priceChangeFactor);
-        klineData.l = newLowPrice.toFixed(8);
+
+        // Устанавливаем новые значения для фитилей свечи
+        klineData.h = (newHighPrice > newClosePrice) ? newHighPrice.toFixed(8) : newClosePrice.toFixed(8);
+        klineData.l = (newLowPrice < newClosePrice) ? newLowPrice.toFixed(8) : newClosePrice.toFixed(8);
     }
 
     klineDataCache.set(symbol, klineData);
@@ -229,4 +237,4 @@ function lerp(start, end, factor) {
 }
 
 // Экспортируем функцию initSocketIO, которая будет вызвана в index.js с сервером в качестве аргумента
-module.exports = initSocketIO;
+module.exports = { initSocketIO, setPriceChange};

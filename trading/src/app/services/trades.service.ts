@@ -79,11 +79,8 @@ export class TradesService{
   }
 
   subscribeToRealtimeData(symbol: string, timeFrame: string): void {
-    // Запросите данные у сервера
-    // this.requestDataFromServer(symbol, timeFrame, 0);
-
     // Отправьте запрос на обновление данных в реальном времени
-    this.socketClient.emit('requestData', {symbol, interval: timeFrame, priceChange: 0.03});
+    this.socketClient.emit('requestData', {symbol, interval: timeFrame});
   }
 
 /*

@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const axios = require('axios');
+const { setPriceChange } = require('../socket.js');
 
 router.get('/', async (req, res) => {
     const { symbol, timeframe } = req.query;
@@ -18,6 +19,13 @@ router.get('/', async (req, res) => {
         console.error(`Error fetching historical data for ${symbol}:`, error);
         res.status(500).send({ error: 'Error fetching historical data' });
     }
+});
+
+router.post('/priceChange', (req, res) => {
+    const { priceChange } = req.body;
+    console.log(123, priceChange)
+    setPriceChange(priceChange);
+    res.send({ message: 'Price change updated successfully' });
 });
 
 module.exports = router;

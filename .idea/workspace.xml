@@ -1,9 +1,15 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="412a33b4-d7c4-4fe9-81eb-f59b6749b475" name="Changes" comment="Работающий метод handleMessage только после закрытия свечи">
+    <list default="true" id="412a33b4-d7c4-4fe9-81eb-f59b6749b475" name="Changes" comment="Работающий метод handleMessage и во время активной свечи и после закрытия, но не корректный фитиль">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/app.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/server/routes/realtimeData.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/routes/realtimeData.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/server/socket.js" beforeDir="false" afterPath="$PROJECT_DIR$/server/socket.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trading/src/app/app.component.ts" beforeDir="false" afterPath="$PROJECT_DIR$/trading/src/app/app.component.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trading/src/app/services/trades.service.ts" beforeDir="false" afterPath="$PROJECT_DIR$/trading/src/app/services/trades.service.ts" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/trading/src/socketClient.ts" beforeDir="false" afterPath="$PROJECT_DIR$/trading/src/socketClient.ts" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -51,7 +57,7 @@
       <option name="presentableId" value="Default" />
       <updated>1680791609098</updated>
       <workItem from="1680791611710" duration="26529000" />
-      <workItem from="1681116852535" duration="43452000" />
+      <workItem from="1681116852535" duration="53914000" />
     </task>
     <task id="LOCAL-00001" summary="initial commit">
       <created>1680958706098</created>
@@ -74,7 +80,14 @@
       <option name="project" value="LOCAL" />
       <updated>1681478804390</updated>
     </task>
-    <option name="localTasksCounter" value="4" />
+    <task id="LOCAL-00004" summary="Работающий метод handleMessage и во время активной свечи и после закрытия, но не корректный фитиль">
+      <created>1681480126639</created>
+      <option name="number" value="00004" />
+      <option name="presentableId" value="LOCAL-00004" />
+      <option name="project" value="LOCAL" />
+      <updated>1681480126639</updated>
+    </task>
+    <option name="localTasksCounter" value="5" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -96,7 +109,8 @@
     <MESSAGE value="initial commit" />
     <MESSAGE value="Buy/sell indicators" />
     <MESSAGE value="Работающий метод handleMessage только после закрытия свечи" />
-    <option name="LAST_COMMIT_MESSAGE" value="Работающий метод handleMessage только после закрытия свечи" />
+    <MESSAGE value="Работающий метод handleMessage и во время активной свечи и после закрытия, но не корректный фитиль" />
+    <option name="LAST_COMMIT_MESSAGE" value="Работающий метод handleMessage и во время активной свечи и после закрытия, но не корректный фитиль" />
   </component>
   <component name="XSLT-Support.FileAssociations.UIState">
     <expand />

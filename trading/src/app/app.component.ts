@@ -2,6 +2,7 @@ import {Component} from '@angular/core';
 import {v4} from 'uuid'
 import {Trade, TradesService} from "./services/trades.service";
 import {SocketClient} from "../socketClient";
+import {ChartComponent} from "./components/chart/chart.component";
 
 @Component({
   selector: 'app-root',
@@ -10,8 +11,14 @@ import {SocketClient} from "../socketClient";
 })
 export class AppComponent {
   socketClient: SocketClient;
+  private chartComponent: ChartComponent | null = null;
+
   constructor(private tradesService: TradesService) {
     this.socketClient = new SocketClient();
+
+    this.socketClient.getPriceChange$().subscribe((newPriceChange: number) => {
+      console.log('newPriceChange-->', newPriceChange)
+    });
   }
 
   title = 'trading';
@@ -20,7 +27,7 @@ export class AppComponent {
   realtimeTimeframe = '1h';
 
   onCurrencyPairChanged(symbol: string): void {
-    this.socketClient.emit('changeSymbol', { symbol: symbol, interval: this.realtimeTimeframe, priceChange: 0.03 });
+    this.socketClient.emit('changeSymbol', { symbol: symbol, interval: this.realtimeTimeframe });
     this.selectedSymbol = symbol;
   }
 
