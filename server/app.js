@@ -9,7 +9,9 @@ const realtimeDataRoute = require('./routes/realtimeData'); // Импортир�
 const io = initSocketIO(server);
 
 // Используйте CORS middleware
-app.use(cors());
+app.use(cors({
+    origin: 'http://localhost:4200' // Замените этот URL на URL вашего фронтенд-приложения
+}));
 
 // Middleware для обработки JSON-запросов
 app.use(express.json());

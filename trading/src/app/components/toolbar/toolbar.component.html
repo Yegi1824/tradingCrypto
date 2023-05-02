@@ -1,0 +1,30 @@
+<div class="toolbar">
+  <div class="toolbar__item"
+       title="Simple Moving Average"
+       [ngStyle]="sName_Indicator_Active === 'SMA' ? {backgroundColor: 'yellow'} : {}"
+       (click)="onChooseIndicator('SMA')">SMA</div>
+  <div class="toolbar__item"
+       title="Exponential Moving Average"
+       [ngStyle]="sName_Indicator_Active === 'EMA' ? {backgroundColor: 'yellow'} : {}"
+       (click)="onChooseIndicator('EMA')">EMA</div>
+  <div class="toolbar__item"
+       title="Bollinger Bands"
+       [ngStyle]="sName_Indicator_Active === 'BB' ? {backgroundColor: 'yellow'} : {}"
+       (click)="onChooseIndicator('BB')">BB</div>
+  <!--<div class="toolbar__item"
+       title="Relative Strength Index"
+       [ngStyle]="sName_Indicator_Active === 'RSI' ? {backgroundColor: 'yellow'} : {}"
+       (click)="onChooseIndicator('RSI')">RSI</div>-->
+ <!-- <div class="toolbar__item"
+       title="Moving Average Convergence Divergence"
+       [ngStyle]="sName_Indicator_Active === 'MACD' ? {backgroundColor: 'yellow'} : {}"
+       (click)="onChooseIndicator('MACD')">MACD</div>-->
+ <!-- <div class="toolbar__item"
+       title="Stochastic Oscillator"
+       [ngStyle]="sName_Indicator_Active === 'SO' ? {backgroundColor: 'yellow'} : {}"
+       (click)="onChooseIndicator('SO')">SO</div>-->
+  <div class="toolbar__item"
+       title="Ichimoku Cloud"
+       [ngStyle]="sName_Indicator_Active === 'IC' ? {backgroundColor: 'yellow'} : {}"
+       (click)="onChooseIndicator('IC')">IC</div>
+</div>

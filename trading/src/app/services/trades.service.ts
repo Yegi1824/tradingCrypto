@@ -40,6 +40,7 @@ export class TradesService{
       if (data && data.t && data.o && data.h && data.l && data.c) {
         if (this.chartComponent) {
           this.chartComponent.updateChartDataRealtime(data);
+          this.chartComponent.updateChartIndicators();
         }
       } else {
         console.error('Invalid data received:', data);
@@ -63,32 +64,10 @@ export class TradesService{
     });
   }
 
- /* requestDataFromServer(symbol: string, interval: string, priceChange: number): void {
-    this.socketClient.emit('requestData', {
-      symbol,
-      interval,
-      priceChange,
-    });
-  }*/
-
-  // Новый метод для обновления текущей цены из данных графика
-  private updateCurrentPriceFromChartData(chartData: any[]): void {
-    const lastCandle = chartData[chartData.length - 1];
-    const currentPrice = lastCandle.close;
-    this.currentPriceSource.next(currentPrice);
-  }
-
   subscribeToRealtimeData(symbol: string, timeFrame: string): void {
     // Отправьте запрос на обновление данных в реальном времени
     this.socketClient.emit('requestData', {symbol, interval: timeFrame});
   }
-
-/*
-  getRealtimeData$() {
-    return this.socketClient.getRealtimeData$();
-  }
-*/
-
 
   updateCurrentPrice(symbol: string, timeFrame: string): void {
     this.getRealtimeData(symbol, timeFrame).pipe(take(1)).subscribe(data => {

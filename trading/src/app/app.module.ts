@@ -19,6 +19,8 @@ import {HttpClientModule} from "@angular/common/http";
 import { TradeFormComponent } from './components/trade-form/trade-form.component';
 import {FormsModule} from "@angular/forms";
 import { ActiveTradesComponent } from './components/active-trades/active-trades.component';
+import { ToolbarComponent } from './components/toolbar/toolbar.component';
+import { ChartNewComponent } from './components/chart-new/chart-new.component';
 
 @NgModule({
   declarations: [
@@ -28,7 +30,9 @@ import { ActiveTradesComponent } from './components/active-trades/active-trades.
     CurrentTradeComponent,
     CurrencyPairSelectorComponent,
     TradeFormComponent,
-    ActiveTradesComponent
+    ActiveTradesComponent,
+    ToolbarComponent,
+    ChartNewComponent
   ],
   imports: [
     BrowserModule,
